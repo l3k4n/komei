@@ -1,0 +1,11 @@
+fn sum(a: int, b: int) int {
+  print(a, b, " = ", a + b);
+	return a + b;
+}
+
+fn main() {
+  int a = 1;
+  int b = 2;
+
+	sum(a, b);
+}
