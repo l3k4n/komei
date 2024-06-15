@@ -1,6 +1,7 @@
 #include "src/lexer/lexer.h"
 
 #include <fstream>
+#include <iostream>
 #include <string>
 #include <utility>
 
@@ -51,7 +52,7 @@ Token Lexer::read() {
         case ',':
             return Token(Token::Kind::Comma, m_fin.get());
         case '"':
-            return Token(Token::Kind::DoubleQuote, m_fin.get());
+            return read_string();
         default: {
             if (is_alpha(ch)) return read_identifier();
             if (is_int(ch)) return read_number();
@@ -83,6 +84,24 @@ Token Lexer::read_number() {
     }
 
     return Token(Token::Kind::Number, std::move(str));
+}
+
+Token Lexer::read_string() {
+    m_fin.get();  // consume initial quote
+
+    unsigned char ch = m_fin.peek();
+    std::string str;
+
+    while (!m_fin.eof() && ch != '"' && ch != '\n') {
+        str.push_back(m_fin.get());
+        ch = m_fin.peek();
+    }
+
+    if (ch != '"') {
+        std::cout << "unterminated string literal\n";
+    }
+
+    return Token(Token::Kind::String, std::move(str));
 }
 
 void Lexer::consume_whitespace() {

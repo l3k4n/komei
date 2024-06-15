@@ -14,7 +14,6 @@ public:
 	LessThan, GreaterThan, LessThanOrEqual, GreaterThanOrEqual,
         Semicolon, Colon, Comma, Dot,
         ParenLeft, ParenRight, BraceLeft, BraceRight,
-        DoubleQuote, SingleQuote,
 
         If, Else, Return, For,
         Identifier, Number, String,
