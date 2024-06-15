@@ -1,3 +1,6 @@
+#ifndef LEXER_H
+#define LEXER_H
+
 #include <fstream>
 
 #include "src/tokens/tokens.h"
@@ -15,3 +18,5 @@ public:
     Token read();
     bool eof();
 };
+
+#endif
