@@ -8,9 +8,9 @@
 class Lexer {
     std::ifstream& m_fin;
 
-    Token read_identifier();
-    Token read_number();
-    Token read_string();
+    Token scan_identifier_or_keyword();
+    Token scan_number();
+    Token scan_string();
     void consume_whitespace();
 
 public:

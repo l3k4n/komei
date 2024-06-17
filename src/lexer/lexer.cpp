@@ -2,19 +2,22 @@
 
 #include <fstream>
 #include <iostream>
+#include <map>
 #include <string>
 #include <utility>
 
 #include "src/tokens/tokens.h"
 
-#define char_fn static inline bool
+#define CHAR_UTIL(name) static inline bool name(unsigned char ch)
 
-char_fn is_alpha(unsigned char ch) { return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'); }
-char_fn is_int(unsigned char ch) { return ch >= '0' && ch <= '9'; }
-char_fn is_identifier_char(unsigned char ch) { return is_alpha(ch) || ch == '_' || is_int(ch); }
-char_fn is_whitespace(unsigned char ch) {
-    return ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t';
-}
+CHAR_UTIL(is_alpha) { return (ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z'); }
+CHAR_UTIL(is_int) { return ch >= '0' && ch <= '9'; }
+CHAR_UTIL(is_identifier_char) { return is_alpha(ch) || ch == '_' || is_int(ch); }
+CHAR_UTIL(is_whitespace) { return ch == ' ' || ch == '\r' || ch == '\n' || ch == '\t'; }
+
+#define T(name, str_val) {str_val, Token::Kind::name},
+std::map<std::string, Token::Kind> keywords = {TOKEN_KIND_LIST(IGNORE_TOKEN_KIND, T)};
+#undef T
 
 Lexer::Lexer(std::ifstream &fin) : m_fin(fin) {}
 
@@ -46,23 +49,23 @@ Token Lexer::read() {
         case ':':
             return Token(Token::Kind::Colon, m_fin.get());
         case '=':
-            return Token(Token::Kind::Equal, m_fin.get());
+            return Token(Token::Kind::Assign, m_fin.get());
         case '+':
-            return Token(Token::Kind::Plus, m_fin.get());
+            return Token(Token::Kind::Add, m_fin.get());
         case ',':
             return Token(Token::Kind::Comma, m_fin.get());
         case '"':
-            return read_string();
+            return scan_string();
         default: {
-            if (is_alpha(ch)) return read_identifier();
-            if (is_int(ch)) return read_number();
+            if (is_alpha(ch)) return scan_identifier_or_keyword();
+            if (is_int(ch)) return scan_number();
 
-            return Token(Token::Kind::Unknown, ch);
+            return Token(Token::Kind::Illegal, ch);
         }
     }
 }
 
-Token Lexer::read_identifier() {
+Token Lexer::scan_identifier_or_keyword() {
     unsigned char ch = m_fin.peek();
     std::string str;
 
@@ -71,10 +74,15 @@ Token Lexer::read_identifier() {
         ch = m_fin.peek();
     }
 
+    if (str.length() > 1) {
+        auto found = keywords.find(str);
+        if (found != keywords.end()) return Token(found->second, std::move(str));
+    }
+
     return Token(Token::Kind::Identifier, std::move(str));
 }
 
-Token Lexer::read_number() {
+Token Lexer::scan_number() {
     unsigned char ch = m_fin.peek();
     std::string str;
 
@@ -86,7 +94,7 @@ Token Lexer::read_number() {
     return Token(Token::Kind::Number, std::move(str));
 }
 
-Token Lexer::read_string() {
+Token Lexer::scan_string() {
     m_fin.get();  // consume initial quote
 
     unsigned char ch = m_fin.peek();
