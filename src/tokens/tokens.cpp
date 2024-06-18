@@ -4,8 +4,7 @@
 
 Token::Token(Token::Kind kind) : m_kind(kind) {}
 
-Token::Token(Token::Kind kind, std::string&& literal)
-    : m_kind(kind), m_literal(std::move(literal)) {}
+Token::Token(Token::Kind kind, std::string literal) : m_kind(kind), m_literal(literal) {}
 
 Token::Token(Token::Kind kind, char literal) : m_kind(kind), m_literal(1, literal) {}
 

@@ -57,7 +57,7 @@ public:
 
     Token(Token::Kind kind);
     Token(Token::Kind kind, char literal);
-    Token(Token::Kind kind, std::string&& literal);
+    Token(Token::Kind kind, std::string literal);
 
     const Kind kind() const;
     const std::string& literal() const;
