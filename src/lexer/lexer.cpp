@@ -19,6 +19,15 @@ CHAR_UTIL(is_whitespace) { return ch == ' ' || ch == '\r' || ch == '\n' || ch ==
 std::map<std::string, Token::Kind> keywords = {TOKEN_KIND_LIST(IGNORE_TOKEN_KIND, T)};
 #undef T
 
+#define HANDLE_TRAILING_EQUAL(kind, kind_with_eq)         \
+    {                                                     \
+        std::string str;                                  \
+        str.push_back(m_fin.get());                       \
+        if (m_fin.peek() != '=') return Token(kind, str); \
+        str.push_back(m_fin.get());                       \
+        return Token(kind_with_eq, str);                  \
+    }
+
 Lexer::Lexer(std::ifstream &fin) : m_fin(fin), m_peeked(nullptr) {}
 
 Token Lexer::read() {
@@ -43,8 +52,6 @@ Token Lexer::read() {
             return Token(Token::Kind::Semicolon, m_fin.get());
         case ':':
             return Token(Token::Kind::Colon, m_fin.get());
-        case '=':
-            return Token(Token::Kind::Assign, m_fin.get());
         case '+':
             return Token(Token::Kind::Add, m_fin.get());
         case '-':
@@ -55,8 +62,14 @@ Token Lexer::read() {
             return Token(Token::Kind::Div, m_fin.get());
         case ',':
             return Token(Token::Kind::Comma, m_fin.get());
+        case '=':
+            HANDLE_TRAILING_EQUAL(Token::Kind::Assign, Token::Kind::Eq)
         case '!':
-            return Token(Token::Kind::Not, m_fin.get());
+            HANDLE_TRAILING_EQUAL(Token::Kind::Not, Token::Kind::NotEq)
+        case '<':
+            HANDLE_TRAILING_EQUAL(Token::Kind::LessThan, Token::Kind::LessThanEq)
+        case '>':
+            HANDLE_TRAILING_EQUAL(Token::Kind::GreaterThan, Token::Kind::GreaterThanEq)
         case '"':
             return scan_string();
         default: {

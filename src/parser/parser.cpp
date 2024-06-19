@@ -1,6 +1,5 @@
 #include "src/parser/parser.h"
 
-#include <iostream>
 #include <string>
 
 #include "src/expression/expression.h"
@@ -51,6 +50,50 @@ Expr::Expr *Parser::factor() {
         case Token::Kind::Mul:
         case Token::Kind::Div:
             return new Expr::Binary(left, m_lexer.next(), unary());
+
+        default:
+            return left;
+    }
+}
+
+Expr::Expr *Parser::term() {
+    auto left = factor();
+    Token token = m_lexer.peek();
+
+    switch (token.kind()) {
+        case Token::Kind::Add:
+        case Token::Kind::Sub:
+            return new Expr::Binary(left, m_lexer.next(), factor());
+
+        default:
+            return left;
+    }
+}
+
+Expr::Expr *Parser::comparison() {
+    auto left = term();
+    Token token = m_lexer.peek();
+
+    switch (token.kind()) {
+        case Token::Kind::LessThan:
+        case Token::Kind::LessThanEq:
+        case Token::Kind::GreaterThan:
+        case Token::Kind::GreaterThanEq:
+            return new Expr::Binary(left, m_lexer.next(), term());
+
+        default:
+            return left;
+    }
+}
+
+Expr::Expr *Parser::equality() {
+    auto left = comparison();
+    Token token = m_lexer.peek();
+
+    switch (token.kind()) {
+        case Token::Kind::NotEq:
+        case Token::Kind::Eq:
+            return new Expr::Binary(left, m_lexer.next(), comparison());
 
         default:
             return left;

@@ -12,6 +12,9 @@ class Parser {
     Expr::Expr* literal();
     Expr::Expr* unary();
     Expr::Expr* factor();
+    Expr::Expr* term();
+    Expr::Expr* comparison();
+    Expr::Expr* equality();
 
 public:
     Parser(Lexer& lexer);
