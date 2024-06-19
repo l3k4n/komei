@@ -19,15 +19,10 @@ CHAR_UTIL(is_whitespace) { return ch == ' ' || ch == '\r' || ch == '\n' || ch ==
 std::map<std::string, Token::Kind> keywords = {TOKEN_KIND_LIST(IGNORE_TOKEN_KIND, T)};
 #undef T
 
-Lexer::Lexer(std::ifstream &fin) : m_fin(fin) {}
+Lexer::Lexer(std::ifstream &fin) : m_fin(fin), m_peeked(nullptr) {}
 
 Token Lexer::read() {
     unsigned char ch = m_fin.peek();
-
-    if (is_whitespace(ch)) {
-        consume_whitespace();
-        return read();
-    }
 
     switch (ch) {
         case ' ':
@@ -35,7 +30,7 @@ Token Lexer::read() {
         case '\t':
         case '\n':
             consume_whitespace();
-            return read();
+            return next();
         case '(':
             return Token(Token::Kind::ParenLeft, m_fin.get());
         case ')':
@@ -52,8 +47,16 @@ Token Lexer::read() {
             return Token(Token::Kind::Assign, m_fin.get());
         case '+':
             return Token(Token::Kind::Add, m_fin.get());
+        case '-':
+            return Token(Token::Kind::Sub, m_fin.get());
+        case '*':
+            return Token(Token::Kind::Mul, m_fin.get());
+        case '/':
+            return Token(Token::Kind::Div, m_fin.get());
         case ',':
             return Token(Token::Kind::Comma, m_fin.get());
+        case '!':
+            return Token(Token::Kind::Not, m_fin.get());
         case '"':
             return scan_string();
         default: {
@@ -63,6 +66,25 @@ Token Lexer::read() {
             return Token(Token::Kind::Illegal, ch);
         }
     }
+}
+
+Token &Lexer::peek() {
+    if (m_peeked == nullptr) {
+        auto tok = new Token(std::move(read()));
+        m_peeked.reset(tok);
+    }
+
+    return *m_peeked;
+}
+
+Token Lexer::next() {
+    if (m_peeked) {
+        Token token = std::move(*m_peeked);
+        m_peeked.reset();
+        return token;
+    };
+
+    return read();
 }
 
 Token Lexer::scan_identifier_or_keyword() {

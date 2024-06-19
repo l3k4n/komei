@@ -10,6 +10,8 @@ class Parser {
     Lexer& m_lexer;
 
     Expr::Expr* literal();
+    Expr::Expr* unary();
+    Expr::Expr* factor();
 
 public:
     Parser(Lexer& lexer);

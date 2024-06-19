@@ -17,9 +17,12 @@ public:
 
     void visitBoolLiteral(Expr::BoolLiteral &expr) override { std::cout << expr.m_value; }
 
-    void visitUnary(Expr::Unary &expr) override { std::cout << expr.m_right; }
+    void visitUnary(Expr::Unary &expr) override { print(expr.m_right); }
 
-    void visitBinary(Expr::Binary &expr) override { std::cout << expr.m_right; }
+    void visitBinary(Expr::Binary &expr) override {
+        print(expr.m_left);
+        print(expr.m_right);
+    }
 
     void print(Expr::Expr *expr) { expr->accept(*this); }
 };

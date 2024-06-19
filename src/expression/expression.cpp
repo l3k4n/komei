@@ -1,6 +1,5 @@
 #include "src/expression/expression.h"
 
-#include <iostream>
 #include <string>
 
 #include "src/expression/visitor.h"
@@ -20,8 +19,6 @@ BoolLiteral::BoolLiteral(bool val) : m_value(val) {}
 Unary::Unary(Token op, Expr *right) : m_operator(op), m_right(right) {}
 
 Binary::Binary(Expr *left, Token op, Expr *right) : m_left(left), m_operator(op), m_right(right) {}
-
-void Expr::Expr::accept(Visitor &v) { std::cout << "base vis"; }
 
 void StringLiteral::accept(Visitor &v) { v.visitStringLiteral(*this); }
 

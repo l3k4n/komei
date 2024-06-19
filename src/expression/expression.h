@@ -40,8 +40,8 @@ public:
 
 class Unary : public Expr {
 public:
-    const Token m_operator;
-    const Expr *m_right;
+    Token m_operator;
+    Expr *m_right;
 
     Unary(Token op, Expr *right);
     void accept(Visitor &v) override;
@@ -49,9 +49,9 @@ public:
 
 class Binary : public Expr {
 public:
-    const Token m_operator;
-    const Expr *m_right;
-    const Expr *m_left;
+    Token m_operator;
+    Expr *m_right;
+    Expr *m_left;
 
     Binary(Expr *left, Token operatior, Expr *right);
     void accept(Visitor &v) override;
